@@ -1,89 +1,115 @@
-use std::default::Default;
+//! This is a Rust library for controlling the backlight on Linux systems via
+//! the /sys/class/backlight interface.
+//!
+//! [`backlight`]: https://github.com/andy-sdc/backlight.git
+//!
+//! This driver allows you to:
+//! - Get the maximum brightness supported by the backlight. See: [`get_max_brightness()`].
+//! - Get the current brightness level. See: [`get_brightness()`].
+//! - Get the current brightness level as a percentage of the maximum. See: [`get_percent()`].
+//!
+//! Documentation
+//! - [Linux kernel backlight documentation]()
+//!
+//! ## Usage examples (see also examples folder)
+//!
+//! ### Get the maximum allowable brightness level
+//!
+//! ```no_run
+//! ```
+//!
+
 use std::fs::{File, OpenOptions};
 use std::io::Read;
 use std::io;
 use std::io::Write;
 use std::path::{PathBuf};
 
-pub struct Brightness {
-    backend: String,
-    max_brightness: i32,
+pub struct Backlight {
+	backend: String,
+	max_brightness: i32,
 }
 
-impl std::default::Default for Brightness {
-    fn default() -> Brightness {
-        return Brightness {
-            backend: "intel_backlight".to_string(),
-            max_brightness: 0,
-        }
-    }
-}
+impl Backlight {
+	/// Create a new instance of the backlight device.
+	pub fn new(backend_dev: &str) -> Self {
+		let backend_path = format!("/sys/class/backlight/{}", backend_dev.to_string());
+		Backlight {
+			backend: backend_path,
+			max_brightness: 0,
+		}
+	}
 
-impl Brightness {
-    fn get(&self, filename: &str) -> Result<i32, io::Error> {
-        let mut path_buffer = PathBuf::from("/sys/class/backlight");
-        path_buffer.push(self.backend.clone());
-        path_buffer.push(filename);
+	/// Return the maximum brightness supported back the backlight.  Read
+	/// it from the file system if it hasn't been got before.
+	pub fn get_max_brightness(&self) -> Result<i32, io::Error> {
+		if self.max_brightness > 0 {
+			return Ok(self.max_brightness);
+		}
+		return self.get("max_brightness");
+	}
 
-        let path = path_buffer.as_path();
-        let mut file = try!(File::open(path));
+	/// Return the current backlight brightness setting.
+	pub fn get_brightness(&self) -> Result<i32, io::Error> {
+		return self.get("brightness");
+	}
 
-        let mut content = String::new();
-        try!(file.read_to_string(&mut content));
+	/// Return the current backlight brightness as a percentage
+	/// of the maximum level.
+	pub fn get_percent(&self) -> Result<i32, io::Error> {
+		let value = try!(self.get_brightness()) as f32;
+		let max = try!(self.get_max_brightness()) as f32;
+		let result = (100 as f32) * (value + 0.5) / max;
+		return Ok(result as i32);
+	}
 
-        match content.trim().parse::<i32>() {
-            Ok(value) => Ok(value),
-            Err(_) => {
-                Ok(-1)
-            }
-        }
-    }
+	/// Set a new brightness level by writing to the file within
+	/// the /sys/class/backlight/... structure
+	pub fn set_brightness(&self, mut value: i32) -> Result<bool, io::Error> {
+		let max = try!(self.get_max_brightness());
+		if value > max {
+			value = max;
+		} else if value < 0 {
+			value = 0;
+		}
 
-    pub fn set_brightness(&self, mut value: i32) -> Result<bool, io::Error> {
-        let max = try!(self.get_max_brightness());
-        if value > max {
-            value = max;
-        } else if value < 0 {
-            value = 0;
-        }
+		let mut path_buffer = PathBuf::from(self.backend.clone());
+		path_buffer.push("brightness");
 
-        let mut path_buffer = PathBuf::from("/sys/class/backlight");
-        path_buffer.push(self.backend.clone());
-        path_buffer.push("brightness");
+		let path = path_buffer.as_path();
+		let mut file = try!(OpenOptions::new().write(true).open(path));
 
-        let path = path_buffer.as_path();
+		match file.write_all(value.to_string().as_bytes()) {
+			Ok(_) => Ok(true),
+			Err(err) => Err(err)
+		}
+	}
+	
+	/// Set a new backlight brightness level as a percentage of the maximum.
+	pub fn set_percent(&self, value: i32) -> Result<bool, io::Error> {
+		let max = try!(self.get_max_brightness());
+		let value = (value as f32) / (100_f32) * (max as f32) + 0.5_f32;
+		let value = value as i32;
+		return self.set_brightness(value as i32);
+	}
+	
+	/// Read the file within the /sys/class/backlight/... structure to
+	/// get the corresponding value.
+	fn get(&self, filename: &str) -> Result<i32, io::Error> {
+		let mut path_buffer = PathBuf::from(self.backend.clone());
+		path_buffer.push(filename);
 
-        let mut file = try!(OpenOptions::new().write(true).open(path));
+		let path = path_buffer.as_path();
+		let mut file = try!(File::open(path));
 
-        match file.write_all(value.to_string().as_bytes()) {
-            Ok(_) => Ok(true),
-            Err(err) => Err(err)
-        }
-    }
+		let mut content = String::new();
+		try!(file.read_to_string(&mut content));
 
-    pub fn get_max_brightness(&self) -> Result<i32, io::Error> {
-        if self.max_brightness > 0 {
-            return Ok(self.max_brightness);
-        }
-        return self.get("max_brightness");
-    }
-
-    pub fn get_brightness(&self) -> Result<i32, io::Error> {
-        return self.get("brightness");
-    }
-
-    pub fn get_percent(&self) -> Result<i32, io::Error> {
-        let value = try!(self.get_brightness()) as f32;
-        let max = try!(self.get_max_brightness()) as f32;
-        let result = (100 as f32) * (value + 0.5) / max;
-        return Ok(result as i32);
-    }
-
-    pub fn set_percent(&self, value: i32) -> Result<bool, io::Error> {
-        let max = try!(self.get_max_brightness());
-        let value = (value as f32) / (100_f32) * (max as f32) + 0.5_f32;
-        let value = value as i32;
-        return self.set_brightness(value as i32);
-    }
-
+		match content.trim().parse::<i32>() {
+			Ok(value) => Ok(value),
+			Err(_) => {
+				Ok(-1)
+			}
+		}
+	}
 }

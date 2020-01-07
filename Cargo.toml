@@ -1,15 +1,21 @@
 [package]
 name = "backlight"
-version = "0.1.1"
-authors = ["Jerko Steiner <jerko.steiner@gmail.com>"]
+version = "0.2.0"
+authors = ["Jerko Steiner <jerko.steiner@gmail.com>", "Andy Pont <andy.pont@sdcsystems.com>"]
 
 description = "Rust library for controlling backlight on linux systems via the `/sys/class/backlight` interface."
+keywords = ["linux", "backlight", "brightness"]
+readme = "README.md"
+
+repository = "https://github.com/sdc-andy/backlight.git"
+license = "MIT"
 
 documentation = "https://github.com/jeremija/backlight.git"
 homepage = "https://github.com/jeremija/backlight.git"
-repository = "https://github.com/jeremija/backlight.git"
-readme = "README.md"
 
-keywords = ["linux", "backlight", "brightness"]
-license = "MIT"
-
+include = [
+	"/**/*.rs",
+	"/Cargo.toml",
+	"/README.md",
+	"/LICENSE-MIT",
+]
