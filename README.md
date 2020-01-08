@@ -19,10 +19,10 @@ extern crate backlight;
 use backlight::{get_max_brightness};
 
 fn main() {
-	  let br = brightness::Brightness::new("backlight-lcd").unwrap();
+    let br = brightness::Brightness::new("backlight-lcd").unwrap();
 
-  let max = br.get_max_brightness().unwrap();
-	  println!("Maximum brightness: {}", max);
+    let max = br.get_max_brightness().unwrap();
+    println!("Maximum brightness: {}", max);
 }
 ```
 
@@ -47,7 +47,7 @@ extern crate backlight;
 use backlight::{get_percent};
 
 fn main() {
-	    let br = brightness::Brightness::new("backlight-lcd").unwrap();
+    let br = brightness::Brightness::new("backlight-lcd").unwrap();
 
     let percent = br.get_percent().unwrap();
     println!("Current brightness: {} percent", percent);
