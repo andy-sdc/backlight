@@ -10,9 +10,6 @@ This crate allows you to:
 - Get the current brightness level. See: [`get_brightness()`].
 - Get the current brightness level as a percentage of the maximum. See: [`get_percent()`].
 
-Documentation
-- [Linux kernel backlight documentation]()
-
 ### Usage examples (see also examples folder)
 
 #### Get the maximum allowable brightness level
