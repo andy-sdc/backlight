@@ -33,10 +33,10 @@ extern crate backlight;
 use backlight::{get_brightness};
 
 fn main() {
-	  let br = brightness::Brightness::new("backlight-lcd").unwrap();
+    let br = brightness::Brightness::new("backlight-lcd").unwrap();
 
-  let current = br.get_brightness().unwrap();
-  println!("Current brightness: {}", current);
+    let current = br.get_brightness().unwrap();
+    println!("Current brightness: {}", current);
 }
 ```
 
