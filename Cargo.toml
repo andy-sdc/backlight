@@ -18,4 +18,5 @@ include = [
 	"/Cargo.toml",
 	"/README.md",
 	"/LICENSE-MIT",
+	"/LICENSE-APACHE",
 ]
