@@ -1,7 +1,7 @@
 [package]
 name = "backlight"
 version = "0.2.0"
-authors = ["Jerko Steiner <jerko.steiner@gmail.com>", "Andy Pont <andy.pont@sdcsystems.com>"]
+authors = ["Jerko Steiner <jerko.steiner@gmail.com>", "Fabian Neumann <mail@fabianneumann.de>", "Andy Pont <andy.pont@sdcsystems.com>"]
 
 description = "Rust library for controlling backlight on linux systems via the `/sys/class/backlight` interface."
 keywords = ["linux", "backlight", "brightness"]

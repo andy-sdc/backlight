@@ -1,7 +1,10 @@
 # backlight
 
 This is a Rust library for controlling the backlight on Linux systems via
-the /sys/class/backlight interface.
+the /sys/class/backlight interface.  It was originally developed by 
+[Jerko Steiner](https://github.com/jeremija/backlight) and modified by
+[Fabian Neumann](https://github.com/hellp/backlight) prior to being
+brought up to date and submitted for full listing on [crates.io](https://crates.io/).
 
 [`backlight`]: https://github.com/andy-sdc/backlight.git
 
