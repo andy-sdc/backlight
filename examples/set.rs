@@ -18,18 +18,21 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
+extern crate structopt;
+use structopt::StructOpt;
+
 extern crate backlight;
 use backlight::Brightness;
 
+#[derive(Debug, StructOpt)]
+#[structopt(name = "backlight", about = "Set the backlight to a specific value")]
+struct Opt {
+	brightness: i32,
+}
+
 fn main() {
+	let opt = Opt::from_args();
+
 	let br = Brightness::new("backlight-lcd");
-
-	let max = br.get_max_brightness().unwrap();
-	println!("Maximum brightness: {}", max);
-
-	let current = br.get_brightness().unwrap();
-	println!("Current brightness: {}", current);
-
-	let percent = br.get_percent().unwrap();
-	println!("Current brightness: {}%", percent);
+	br.set_brightness(opt.brightness).unwrap();
 }
